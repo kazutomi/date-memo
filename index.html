@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#01696f">
+  <title>Date Memo</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=boska@500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#f3f0ec; --color-border:#d4d1ca; --color-divider:#dcd9d5;
+      --color-text:#28251d; --color-text-muted:#66635d; --color-text-faint:#9b9892; --color-text-inverse:#f9f8f4;
+      --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-highlight:#dcebea; --color-danger:#a13544;
+      --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.06); --shadow-md:0 10px 30px rgba(0,0,0,.08);
+      --font-display:'Boska', Georgia, serif; --font-body:'Satoshi', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#242320; --color-border:#393836; --color-divider:#2a2927;
+      --color-text:#ece8e1; --color-text-muted:#b5b0a8; --color-text-faint:#817c74; --color-text-inverse:#171614;
+      --color-primary:#4f98a3; --color-primary-hover:#69aeb8; --color-primary-highlight:#213639; --color-danger:#dd6974;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.25); --shadow-md:0 12px 32px rgba(0,0,0,.35);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{-webkit-text-size-adjust:none;text-size-adjust:none;scroll-behavior:smooth}
+    body{margin:0;min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);line-height:1.6;background:var(--color-bg);color:var(--color-text)}
+    button,input,textarea{font:inherit;color:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    .skip-link{position:absolute;left:-9999px;top:auto}.skip-link:focus{left:var(--space-4);top:var(--space-4);z-index:1000;background:var(--color-surface-2);padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);outline:2px solid var(--color-primary)}
+    .shell{max-width:1100px;margin:0 auto;padding:calc(env(safe-area-inset-top) + var(--space-4)) var(--space-4) calc(env(safe-area-inset-bottom) + var(--space-8))}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-6)}
+    .brand{display:flex;align-items:center;gap:var(--space-3)}
+    .logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--color-primary),color-mix(in srgb,var(--color-primary) 55%, white));display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+    .logo svg{width:22px;height:22px;color:#fff}
+    .brand h1{margin:0;font-family:var(--font-display);font-size:var(--text-xl);line-height:1}
+    .brand p{margin:0;color:var(--color-text-muted);font-size:var(--text-sm)}
+    .actions{display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end}
+    .icon-btn,.btn{border:1px solid var(--color-border);background:var(--color-surface);border-radius:var(--radius-full);padding:0.75rem 1rem;min-height:44px;display:inline-flex;align-items:center;gap:0.55rem;text-decoration:none}
+    .icon-btn{padding:0.75rem;width:44px;justify-content:center}
+    .btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:transparent}
+    .btn:hover,.icon-btn:hover{background:var(--color-surface-offset)}
+    .btn.primary:hover{background:var(--color-primary-hover)}
+    .hero{display:grid;grid-template-columns:1.2fr 0.8fr;gap:var(--space-4);margin-bottom:var(--space-6)}
+    .panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
+    .intro{padding:var(--space-6)}
+    .intro h2{margin:0 0 var(--space-3);font-family:var(--font-display);font-size:clamp(2rem,1.3rem + 2.2vw,3.6rem);line-height:1.02}
+    .intro p{margin:0;color:var(--color-text-muted);max-width:40ch}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-3);padding:var(--space-6)}
+    .stat{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-offset);border:1px solid color-mix(in srgb,var(--color-border) 80%, transparent)}
+    .stat .label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted)}
+    .stat .value{font-size:var(--text-lg);font-weight:700;margin-top:var(--space-2)}
+    .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,0.95fr);gap:var(--space-4)}
+    .composer,.search-panel,.list-panel{padding:var(--space-5)}
+    .section-title{display:flex;align-items:end;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-4)}
+    .section-title h3{margin:0;font-size:var(--text-lg)}
+    .section-title p{margin:0;font-size:var(--text-sm);color:var(--color-text-muted)}
+    label{display:block;font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-2)}
+    input[type="date"],input[type="search"],textarea{width:100%;border:1px solid var(--color-border);background:var(--color-surface-2);border-radius:var(--radius-lg);padding:0.9rem 1rem;outline:none}
+    textarea{min-height:220px;resize:vertical}
+    input:focus,textarea:focus{border-color:var(--color-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-primary) 18%, transparent)}
+    .field{margin-bottom:var(--space-4)}
+    .toolbar{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .hint{margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)}
+    .search-box{position:sticky;top:var(--space-4);margin-bottom:var(--space-4)}
+    .result-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3)}
+    .list{display:grid;gap:var(--space-3)}
+    .memo-item{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface-2);border:1px solid var(--color-border)}
+    .memo-head{display:flex;justify-content:space-between;gap:var(--space-3);align-items:start;margin-bottom:var(--space-2)}
+    .memo-date{font-weight:700}
+    .memo-snippet{white-space:pre-wrap;word-break:break-word;color:var(--color-text-muted)}
+    .memo-actions{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)}
+    .chip{display:inline-flex;align-items:center;border-radius:var(--radius-full);padding:0.3rem 0.7rem;background:var(--color-primary-highlight);color:var(--color-primary);font-size:var(--text-xs);font-weight:700}
+    .empty{padding:var(--space-8) var(--space-4);text-align:center;color:var(--color-text-muted)}
+    .footer-note{margin-top:var(--space-5);padding:var(--space-4);border-top:1px solid var(--color-divider);font-size:var(--text-sm);color:var(--color-text-muted)}
+    dialog{border:none;border-radius:var(--radius-xl);padding:0;max-width:min(680px,calc(100vw - 2rem));width:100%;background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-md)}
+    dialog::backdrop{background:rgba(0,0,0,.35)}
+    .dialog-body{padding:var(--space-5)}
+    .dialog-body pre{white-space:pre-wrap;word-break:break-word;background:var(--color-surface-offset);padding:var(--space-4);border-radius:var(--radius-lg);border:1px solid var(--color-border)}
+    .danger{color:var(--color-danger)}
+    @media (max-width: 860px){.hero,.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+    @media (max-width: 560px){.topbar{align-items:start;flex-direction:column}.actions{justify-content:start}.stats{grid-template-columns:1fr}.shell{padding-inline:var(--space-3)}.intro,.stats,.composer,.search-panel,.list-panel{padding:var(--space-4)}}
+    @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto;transition:none!important}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Date Memo">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 4v16"/><path d="M18 4v16"/><path d="M6 7c2.4-2 4.8-3 6-3s3.6 1 6 3"/><path d="M6 17c2.4-2 4.8-3 6-3s3.6 1 6 3"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Date Memo</h1>
+          <p>日付とメモだけを、端末内に静かに蓄積</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="テーマ切替"></button>
+        <button class="btn" type="button" id="exportJsonBtn">JSON 書き出し</button>
+        <label class="btn" for="importJsonInput">JSON 読み込み</label>
+        <input id="importJsonInput" type="file" accept="application/json" hidden>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="panel intro">
+          <span class="chip">ローカルファースト</span>
+          <h2>iPhone と Mac の両方で、サービス依存なしに使える簡素な備忘録。</h2>
+          <p>保存先はこのブラウザの中だけです。日付と本文を記録し、あとからキーワードや日付で検索できます。必要なら JSON で持ち出して別端末へ移せます。</p>
+        </div>
+        <div class="panel stats" aria-label="状態">
+          <div class="stat"><div class="label">登録件数</div><div class="value" id="statCount">0 件</div></div>
+          <div class="stat"><div class="label">検索結果</div><div class="value" id="statFiltered">0 件</div></div>
+          <div class="stat"><div class="label">最古の日付</div><div class="value" id="statOldest">-</div></div>
+          <div class="stat"><div class="label">最新の日付</div><div class="value" id="statNewest">-</div></div>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="メモ管理">
+        <div class="panel composer">
+          <div class="section-title">
+            <div>
+              <h3>記録する</h3>
+              <p>同じ日付で保存すると上書きではなく別項目として追加します。</p>
+            </div>
+          </div>
+          <form id="memoForm">
+            <div class="field">
+              <label for="memoDate">日付</label>
+              <input id="memoDate" name="memoDate" type="date" required>
+            </div>
+            <div class="field">
+              <label for="memoBody">メモ</label>
+              <textarea id="memoBody" name="memoBody" placeholder="例: 2026-04-13 Slurm ノード交換。手順は rack03 側から。" required></textarea>
+            </div>
+            <div class="toolbar">
+              <button class="btn primary" type="submit" id="saveBtn">保存</button>
+              <button class="btn" type="button" id="clearFormBtn">入力を消す</button>
+            </div>
+            <div class="hint" id="formHint">Safari / Chrome などのブラウザ内に保存します。</div>
+          </form>
+        </div>
+
+        <div>
+          <div class="panel search-panel">
+            <div class="section-title">
+              <div>
+                <h3>探す</h3>
+                <p>キーワードは AND ではなく部分一致です。</p>
+              </div>
+            </div>
+            <div class="search-box">
+              <div class="field">
+                <label for="searchText">キーワード</label>
+                <input id="searchText" type="search" placeholder="例: Slurm, 旅行, 4月会議">
+              </div>
+              <div class="field">
+                <label for="searchDate">日付で絞り込み</label>
+                <input id="searchDate" type="date">
+              </div>
+              <div class="toolbar">
+                <button class="btn" type="button" id="resetSearchBtn">絞り込み解除</button>
+              </div>
+            </div>
+            <div class="result-meta" id="resultMeta">0 件あります。</div>
+          </div>
+
+          <div class="panel list-panel" style="margin-top:1rem;">
+            <div class="section-title">
+              <div>
+                <h3>メモ一覧</h3>
+                <p>新しい日付順。必要なら個別に編集・削除できます。</p>
+              </div>
+            </div>
+            <div id="memoList" class="list" aria-live="polite"></div>
+            <div class="footer-note">別端末と自動同期はしません。同期したい場合は JSON 書き出し / 読み込みを使ってください。</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="viewDialog">
+    <div class="dialog-body">
+      <div class="section-title"><h3 id="dialogTitle">メモ詳細</h3><button class="btn" type="button" id="closeDialogBtn">閉じる</button></div>
+      <pre id="dialogContent"></pre>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      const dbName = 'date-memo-db';
+      const storeName = 'memos';
+      let db;
+      let editingId = null;
+      let memos = [];
+
+      const el = {
+        form: document.getElementById('memoForm'),
+        memoDate: document.getElementById('memoDate'),
+        memoBody: document.getElementById('memoBody'),
+        formHint: document.getElementById('formHint'),
+        searchText: document.getElementById('searchText'),
+        searchDate: document.getElementById('searchDate'),
+        memoList: document.getElementById('memoList'),
+        resultMeta: document.getElementById('resultMeta'),
+        statCount: document.getElementById('statCount'),
+        statFiltered: document.getElementById('statFiltered'),
+        statOldest: document.getElementById('statOldest'),
+        statNewest: document.getElementById('statNewest'),
+        exportJsonBtn: document.getElementById('exportJsonBtn'),
+        importJsonInput: document.getElementById('importJsonInput'),
+        clearFormBtn: document.getElementById('clearFormBtn'),
+        resetSearchBtn: document.getElementById('resetSearchBtn'),
+        saveBtn: document.getElementById('saveBtn'),
+        dialog: document.getElementById('viewDialog'),
+        dialogTitle: document.getElementById('dialogTitle'),
+        dialogContent: document.getElementById('dialogContent'),
+        closeDialogBtn: document.getElementById('closeDialogBtn'),
+        themeToggle: document.querySelector('[data-theme-toggle]')
+      };
+
+      const pad = n => String(n).padStart(2, '0');
+      const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+      const formatDate = (s) => s || '-';
+      const escapeHtml = (str) => str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+      function setThemeIcon(mode) {
+        el.themeToggle.innerHTML = mode === 'dark'
+          ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+          : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      }
+
+      function initTheme() {
+        let mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', mode);
+        setThemeIcon(mode);
+        el.themeToggle.addEventListener('click', () => {
+          mode = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', mode);
+          setThemeIcon(mode);
+        });
+      }
+
+      function openDb() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(dbName, 1);
+          request.onupgradeneeded = () => {
+            const db = request.result;
+            const store = db.createObjectStore(storeName, { keyPath: 'id' });
+            store.createIndex('date', 'date', { unique: false });
+            store.createIndex('updatedAt', 'updatedAt', { unique: false });
+          };
+          request.onsuccess = () => { db = request.result; resolve(db); };
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function tx(mode = 'readonly') {
+        return db.transaction(storeName, mode).objectStore(storeName);
+      }
+
+      function getAllMemos() {
+        return new Promise((resolve, reject) => {
+          const request = tx().getAll();
+          request.onsuccess = () => resolve(request.result || []);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function saveMemo(memo) {
+        return new Promise((resolve, reject) => {
+          const request = tx('readwrite').put(memo);
+          request.onsuccess = () => resolve();
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function deleteMemo(id) {
+        return new Promise((resolve, reject) => {
+          const request = tx('readwrite').delete(id);
+          request.onsuccess = () => resolve();
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function filteredMemos() {
+        const q = el.searchText.value.trim().toLowerCase();
+        const d = el.searchDate.value;
+        return [...memos]
+          .filter(m => !d || m.date === d)
+          .filter(m => !q || `${m.date} ${m.body}`.toLowerCase().includes(q))
+          .sort((a,b) => (b.date + b.updatedAt).localeCompare(a.date + a.updatedAt));
+      }
+
+      function updateStats(items) {
+        el.statCount.textContent = `${memos.length} 件`;
+        el.statFiltered.textContent = `${items.length} 件`;
+        if (!memos.length) {
+          el.statOldest.textContent = '-';
+          el.statNewest.textContent = '-';
+          return;
+        }
+        const sorted = [...memos].sort((a,b) => a.date.localeCompare(b.date));
+        el.statOldest.textContent = formatDate(sorted[0].date);
+        el.statNewest.textContent = formatDate(sorted[sorted.length - 1].date);
+      }
+
+      function render() {
+        const items = filteredMemos();
+        updateStats(items);
+        el.resultMeta.textContent = `${items.length} 件表示 / 全 ${memos.length} 件`;
+        if (!items.length) {
+          el.memoList.innerHTML = '<div class="empty">まだメモがありません。左側から追加してください。</div>';
+          return;
+        }
+        el.memoList.innerHTML = items.map(item => `
+          <article class="memo-item">
+            <div class="memo-head">
+              <div>
+                <div class="memo-date">${escapeHtml(item.date)}</div>
+                <div class="chip">${new Date(item.updatedAt).toLocaleString('ja-JP')}</div>
+              </div>
+            </div>
+            <div class="memo-snippet">${escapeHtml(item.body.length > 180 ? item.body.slice(0,180) + '…' : item.body)}</div>
+            <div class="memo-actions">
+              <button class="btn" type="button" data-action="view" data-id="${item.id}">表示</button>
+              <button class="btn" type="button" data-action="edit" data-id="${item.id}">編集</button>
+              <button class="btn danger" type="button" data-action="delete" data-id="${item.id}">削除</button>
+            </div>
+          </article>`).join('');
+      }
+
+      async function refresh() {
+        memos = await getAllMemos();
+        render();
+      }
+
+      function resetForm() {
+        editingId = null;
+        el.form.reset();
+        el.memoDate.value = today();
+        el.saveBtn.textContent = '保存';
+        el.formHint.textContent = 'Safari / Chrome などのブラウザ内に保存します。';
+      }
+
+      async function handleSubmit(ev) {
+        ev.preventDefault();
+        const date = el.memoDate.value;
+        const body = el.memoBody.value.trim();
+        if (!date || !body) return;
+        const now = new Date().toISOString();
+        const memo = { id: editingId || crypto.randomUUID(), date, body, updatedAt: now };
+        await saveMemo(memo);
+        await refresh();
+        resetForm();
+      }
+
+      function downloadJson() {
+        const blob = new Blob([JSON.stringify(memos, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `date-memo-${today()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      async function importJson(file) {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) throw new Error('JSON 配列ではありません');
+        for (const row of data) {
+          if (!row || typeof row.date !== 'string' || typeof row.body !== 'string') continue;
+          await saveMemo({
+            id: typeof row.id === 'string' ? row.id : crypto.randomUUID(),
+            date: row.date,
+            body: row.body,
+            updatedAt: row.updatedAt || new Date().toISOString()
+          });
+        }
+        await refresh();
+      }
+
+      function bindEvents() {
+        el.form.addEventListener('submit', handleSubmit);
+        el.clearFormBtn.addEventListener('click', resetForm);
+        el.exportJsonBtn.addEventListener('click', downloadJson);
+        el.importJsonInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          try {
+            await importJson(file);
+            el.formHint.textContent = 'JSON を読み込みました。';
+          } catch (err) {
+            el.formHint.textContent = `読み込み失敗: ${err.message}`;
+          } finally {
+            e.target.value = '';
+          }
+        });
+        [el.searchText, el.searchDate].forEach(node => node.addEventListener('input', render));
+        el.resetSearchBtn.addEventListener('click', () => {
+          el.searchText.value = '';
+          el.searchDate.value = '';
+          render();
+        });
+        el.memoList.addEventListener('click', async (e) => {
+          const button = e.target.closest('button[data-action]');
+          if (!button) return;
+          const memo = memos.find(m => m.id === button.dataset.id);
+          if (!memo) return;
+          const action = button.dataset.action;
+          if (action === 'view') {
+            el.dialogTitle.textContent = memo.date;
+            el.dialogContent.textContent = memo.body;
+            el.dialog.showModal();
+          }
+          if (action === 'edit') {
+            editingId = memo.id;
+            el.memoDate.value = memo.date;
+            el.memoBody.value = memo.body;
+            el.saveBtn.textContent = '更新';
+            el.formHint.textContent = '編集中です。保存すると上書きされます。';
+            el.memoBody.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          if (action === 'delete') {
+            if (!confirm(`${memo.date} のメモを削除しますか？`)) return;
+            await deleteMemo(memo.id);
+            await refresh();
+          }
+        });
+        el.closeDialogBtn.addEventListener('click', () => el.dialog.close());
+        el.dialog.addEventListener('click', (e) => {
+          const rect = el.dialog.getBoundingClientRect();
+          const inside = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
+          if (!inside) el.dialog.close();
+        });
+      }
+
+      async function init() {
+        initTheme();
+        el.memoDate.value = today();
+        try {
+          await openDb();
+          bindEvents();
+          await refresh();
+        } catch (err) {
+          el.formHint.textContent = `初期化失敗: ${err.message}`;
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
