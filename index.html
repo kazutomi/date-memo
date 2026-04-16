@@ -68,6 +68,7 @@
     input:focus,textarea:focus{border-color:var(--color-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-primary) 18%, transparent)}
     .field{margin-bottom:var(--space-4)}
     .toolbar{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .edit-toolbar{margin-bottom:var(--space-4)}
     .hint{margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)}
     .search-box{position:sticky;top:var(--space-4);margin-bottom:var(--space-4)}
     .result-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3)}
@@ -137,6 +138,9 @@
             </div>
           </div>
           <form id="memoForm">
+            <div class="toolbar edit-toolbar" id="editToolbar" hidden>
+              <button class="btn" type="button" id="cancelEditBtn">編集をやめる</button>
+            </div>
             <div class="field">
               <label for="memoDate">日付</label>
               <input id="memoDate" name="memoDate" type="date" required>
@@ -223,6 +227,8 @@
         exportJsonBtn: document.getElementById('exportJsonBtn'),
         importJsonInput: document.getElementById('importJsonInput'),
         clearFormBtn: document.getElementById('clearFormBtn'),
+        cancelEditBtn: document.getElementById('cancelEditBtn'),
+        editToolbar: document.getElementById('editToolbar'),
         resetSearchBtn: document.getElementById('resetSearchBtn'),
         saveBtn: document.getElementById('saveBtn'),
         dialog: document.getElementById('viewDialog'),
@@ -354,6 +360,20 @@
         el.memoDate.value = today();
         el.saveBtn.textContent = '保存';
         el.formHint.textContent = 'Safari / Chrome などのブラウザ内に保存します。';
+        el.editToolbar.hidden = true;
+      }
+
+      function scrollFormIntoView() {
+        const topbar = document.querySelector('.topbar');
+        const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 0;
+        const y = window.scrollY + el.form.getBoundingClientRect().top - topbarHeight - 16;
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+          setTimeout(() => {
+            el.memoBody.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+            el.memoBody.focus({ preventScroll: true });
+          }, 220);
+        });
       }
 
       async function handleSubmit(ev) {
@@ -397,6 +417,7 @@
       function bindEvents() {
         el.form.addEventListener('submit', handleSubmit);
         el.clearFormBtn.addEventListener('click', resetForm);
+        el.cancelEditBtn.addEventListener('click', resetForm);
         el.exportJsonBtn.addEventListener('click', downloadJson);
         el.importJsonInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
@@ -432,9 +453,9 @@
             el.memoDate.value = memo.date;
             el.memoBody.value = memo.body;
             el.saveBtn.textContent = '更新';
-            el.formHint.textContent = '編集中です。保存すると上書きされます。';
-            el.memoBody.focus();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            el.formHint.textContent = '編集中です。更新しないなら「編集をやめる」で元に戻せます。';
+            el.editToolbar.hidden = false;
+            scrollFormIntoView();
           }
           if (action === 'delete') {
             if (!confirm(`${memo.date} のメモを削除しますか？`)) return;
