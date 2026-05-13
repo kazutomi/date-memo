@@ -68,7 +68,6 @@
     input:focus,textarea:focus{border-color:var(--color-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-primary) 18%, transparent)}
     .field{margin-bottom:var(--space-4)}
     .toolbar{display:flex;gap:var(--space-2);flex-wrap:wrap}
-    .edit-toolbar{margin-bottom:var(--space-4)}
     .hint{margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)}
     .search-box{position:sticky;top:var(--space-4);margin-bottom:var(--space-4)}
     .result-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3)}
@@ -138,12 +137,12 @@
             </div>
           </div>
           <form id="memoForm">
-            <div class="toolbar edit-toolbar" id="editToolbar" hidden>
-              <button class="btn" type="button" id="cancelEditBtn">編集をやめる</button>
-            </div>
             <div class="field">
               <label for="memoDate">日付</label>
-              <input id="memoDate" name="memoDate" type="date" required>
+              <div class="date-row" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                <input id="memoDate" name="memoDate" type="date" required>
+                <span id="memoWeekday" class="chip" aria-live="polite">-</span>
+              </div>
             </div>
             <div class="field">
               <label for="memoBody">メモ</label>
@@ -227,10 +226,9 @@
         exportJsonBtn: document.getElementById('exportJsonBtn'),
         importJsonInput: document.getElementById('importJsonInput'),
         clearFormBtn: document.getElementById('clearFormBtn'),
-        cancelEditBtn: document.getElementById('cancelEditBtn'),
-        editToolbar: document.getElementById('editToolbar'),
         resetSearchBtn: document.getElementById('resetSearchBtn'),
         saveBtn: document.getElementById('saveBtn'),
+        memoWeekday: document.getElementById('memoWeekday'),
         dialog: document.getElementById('viewDialog'),
         dialogTitle: document.getElementById('dialogTitle'),
         dialogContent: document.getElementById('dialogContent'),
@@ -240,7 +238,8 @@
 
       const pad = n => String(n).padStart(2, '0');
       const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
-      const formatDate = (s) => s || '-';
+      const formatDate = (s) => { if (!s) return '-'; const d = new Date(`${s}T00:00:00`); if (Number.isNaN(d.getTime())) return s; return new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).format(d); };
+      const formatWeekday = (s) => { if (!s) return '-'; const d = new Date(`${s}T00:00:00`); if (Number.isNaN(d.getTime())) return '-'; return new Intl.DateTimeFormat('ja-JP', { weekday: 'short' }).format(d); };
       const escapeHtml = (str) => str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
       function setThemeIcon(mode) {
@@ -336,7 +335,7 @@
           <article class="memo-item">
             <div class="memo-head">
               <div>
-                <div class="memo-date">${escapeHtml(item.date)}</div>
+                <div class="memo-date">${escapeHtml(formatDate(item.date))}</div>
                 <div class="chip">${new Date(item.updatedAt).toLocaleString('ja-JP')}</div>
               </div>
             </div>
@@ -354,26 +353,17 @@
         render();
       }
 
+      function updateWeekdayPreview() {
+        el.memoWeekday.textContent = el.memoDate.value ? formatWeekday(el.memoDate.value) : '-';
+      }
+
       function resetForm() {
         editingId = null;
         el.form.reset();
         el.memoDate.value = today();
+        updateWeekdayPreview();
         el.saveBtn.textContent = '保存';
         el.formHint.textContent = 'Safari / Chrome などのブラウザ内に保存します。';
-        el.editToolbar.hidden = true;
-      }
-
-      function scrollFormIntoView() {
-        const topbar = document.querySelector('.topbar');
-        const topbarHeight = topbar ? topbar.getBoundingClientRect().height : 0;
-        const y = window.scrollY + el.form.getBoundingClientRect().top - topbarHeight - 16;
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-          setTimeout(() => {
-            el.memoBody.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-            el.memoBody.focus({ preventScroll: true });
-          }, 220);
-        });
       }
 
       async function handleSubmit(ev) {
@@ -417,7 +407,6 @@
       function bindEvents() {
         el.form.addEventListener('submit', handleSubmit);
         el.clearFormBtn.addEventListener('click', resetForm);
-        el.cancelEditBtn.addEventListener('click', resetForm);
         el.exportJsonBtn.addEventListener('click', downloadJson);
         el.importJsonInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
@@ -432,6 +421,8 @@
           }
         });
         [el.searchText, el.searchDate].forEach(node => node.addEventListener('input', render));
+        el.memoDate.addEventListener('input', updateWeekdayPreview);
+        el.memoDate.addEventListener('change', updateWeekdayPreview);
         el.resetSearchBtn.addEventListener('click', () => {
           el.searchText.value = '';
           el.searchDate.value = '';
@@ -444,7 +435,7 @@
           if (!memo) return;
           const action = button.dataset.action;
           if (action === 'view') {
-            el.dialogTitle.textContent = memo.date;
+            el.dialogTitle.textContent = formatDate(memo.date);
             el.dialogContent.textContent = memo.body;
             el.dialog.showModal();
           }
@@ -453,9 +444,10 @@
             el.memoDate.value = memo.date;
             el.memoBody.value = memo.body;
             el.saveBtn.textContent = '更新';
-            el.formHint.textContent = '編集中です。更新しないなら「編集をやめる」で元に戻せます。';
-            el.editToolbar.hidden = false;
-            scrollFormIntoView();
+            el.formHint.textContent = '編集中です。保存すると上書きされます。';
+            updateWeekdayPreview();
+            el.memoBody.focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
           if (action === 'delete') {
             if (!confirm(`${memo.date} のメモを削除しますか？`)) return;
@@ -474,6 +466,7 @@
       async function init() {
         initTheme();
         el.memoDate.value = today();
+        updateWeekdayPreview();
         try {
           await openDb();
           bindEvents();
